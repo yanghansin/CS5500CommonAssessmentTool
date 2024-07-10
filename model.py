@@ -9,7 +9,22 @@ def prepare_models():
     classCode = pd.read_csv('training_data.csv')
     
     # Define categorical columns and interventions
-    categorical_cols = ['level_of_schooling', 'have_disability', 'housing_situation']
+    categorical_cols = ['dep_num', 
+                        'canada_born',
+                        'citizen_status',
+                        'level_of_schooling',
+                        'fluent_english',
+                        'numeracy_bool',
+                        'computer_bool',
+                        'transportation_bool',
+                        'caregiver_bool',
+                        'housing',
+                        'income_source',
+                        'felony_bool',
+                        'attending_school',
+                        'currently_employed',
+                        'time_unemployed',
+                        'canada_workex']
     interventions = [
         'employment_assistance',
         'life_stabilization',
@@ -85,6 +100,23 @@ def interpret_and_calculate(data):
             "No": 0,
             "Yes": 1
         }
+
+# 'dep_num', 
+#                         'canada_born',
+#                         'citizen_status',
+#                         'level_of_schooling',
+#                         'fluent_english',
+#                         'numeracy_bool',
+#                         'computer_bool',
+#                         'transportation_bool',
+#                         'caregiver_bool',
+#                         'housing',
+#                         'income_source',
+#                         'felony_bool',
+#                         'attending_school',
+#                         'currently_employed',
+#                         'time_unemployed',
+#                         'canada_workex'
     }
 
     # Prepare models and feature names (same as before)
