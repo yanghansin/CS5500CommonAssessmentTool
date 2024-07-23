@@ -57,14 +57,31 @@ def prepare_models():
     
     return rf_model_baseline, rf_model_success_increase, feature_names_baseline, feature_names_success
 
+
+# 
+#  
+]
 def interpret_and_calculate(data):
     # Separate demographics and interventions
     demographics = {
-        'level_of_schooling': data[0],
-        'have_disability': data[1],
-        'housing_situation': data[2]
+        'dep_num': data[0],
+        'canada_born': data[1],
+        'citizen_status': data[2],
+        'level_of_schooling': data[3],
+        'fluent_english': data[4],
+        'numeracy_bool': data[5],
+        'computer_bool': data[6],
+        'transportation_bool': data[7],
+        'caregiver_bool': data[8],
+        'housing': data[9],
+        'income_source': data[10],
+        'felony_bool': data[11],
+        'attending_school': data[12],
+        'currently_employed': data[13],
+        'time_unemployed': data[14],
+        'canada_workex': data[15],
     }
-    interventions = data[3:]
+    interventions = data[16:]
     
     # Convert categorical variables to integers (same as before)
     categorical_cols_integers = {
