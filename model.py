@@ -60,7 +60,6 @@ def prepare_models():
 
 # 
 #  
-]
 def interpret_and_calculate(data):
     # Separate demographics and interventions
     demographics = {
