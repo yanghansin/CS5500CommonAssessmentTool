@@ -4,29 +4,35 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 
-#additional checks for data
-
 def prepare_models():
     # Load dataset and define the features and labels
-    classCode = pd.read_csv('training_data.csv')
+    backendCode = pd.read_csv('data_commontool.csv')
     
     # Define categorical columns and interventions
-    categorical_cols = ['dep_num', #number of dependents
-                        'canada_born',
-                        'citizen_status',
-                        'level_of_schooling',
-                        'fluent_english',
-                        'numeracy_bool',
-                        'computer_bool',
-                        'transportation_bool',
-                        'caregiver_bool',
-                        'housing',
-                        'income_source',
-                        'felony_bool',
-                        'attending_school',
-                        'currently_employed',
-                        'time_unemployed',
-                        'canada_workex']
+    categorical_cols = ['age',
+                        'gender', #bool
+                        'work_experience', #years of work experience
+                        'canada_workex',#years of work experience
+                        'dep_num', #number of dependents
+                        'canada_born', #born in canada
+                        'citizen_status', #citizen status
+                        'level_of_schooling', #highest level achieved (1-14)
+                        'fluent_english', #english level fluency, scale (1-1-)
+                        'reading_english_scale', #reading scale (1-10)
+                        'speaking_english_scale', #speaking level comfort (1-10)
+                        'writing_english_scale', #writing scale (1-10)
+                        'numeracy_scale', #numeracy scale (1-10)
+                        'computer_scale', #computer use scale  (1-10)
+                        'transportation_bool', #need transportation support (bool)
+                        'caregiver_bool', #is a primary care giver bool
+                        'housing', #housing situation 1-10
+                        'income_source', #source of income 1-10
+                        'felony_bool', #has a felony bool
+                        'attending_school', #currently a student bool
+                        'currently_employed', #currently employed bool
+                        'substance_use', #disorder, bool
+                        'time_unemployed', #number of years unemployed
+                        'need_mental_health_support_bool'] #need support]
     interventions = [
         'employment_assistance',
         'life_stabilization',
@@ -38,33 +44,74 @@ def prepare_models():
     ]
     
     # Prepare training data
-    X_categorical_baseline = classCode[categorical_cols]
-    y_baseline = classCode['baseline_return_to_work']
-    X_train_baseline, _, y_train_baseline, _ = train_test_split(
+    X_categorical_baseline = backendCode[categorical_cols]
+    y_baseline = backendCode['baseline_return_to_work']
+    X_train_baseline, X_test_baseline, y_train_baseline, y_test_baseline = train_test_split(
         X_categorical_baseline, y_baseline, test_size=0.2, random_state=42)
+
+    X_success_increase = backendCode[categorical_cols + interventions]
+    y_success_increase = backendCode['success_increase']
     
-    X_success_increase = classCode[categorical_cols + interventions]
-    y_success_increase = classCode['success_increase']
     
-    # Initialize and train the random forest models
+    # Example: Train a RandomForestRegressor model for baseline data
     rf_model_baseline = RandomForestRegressor(n_estimators=100, random_state=42)
     rf_model_baseline.fit(X_train_baseline, y_train_baseline)
 
+    # Example: Predicting on the test set
+    baseline_predictions = rf_model_baseline.predict(X_test_baseline)
+
+    # Similarly, you can train and use models for success increase data
+    # Example: Train a RandomForestRegressor model for success increase data
     rf_model_success_increase = RandomForestRegressor(n_estimators=100, random_state=42)
     rf_model_success_increase.fit(X_success_increase, y_success_increase)
-    
+
     # Define feature names used during training
     feature_names_baseline = X_categorical_baseline.columns.tolist()
     feature_names_success = X_success_increase.columns.tolist()
-    
-    return rf_model_baseline, rf_model_success_increase, feature_names_baseline, feature_names_success
 
-
+    return X_train_baseline, X_test_baseline, y_train_baseline, y_test_baseline, X_success_increase, y_success_increase, rf_model_baseline, rf_model_success_increase, feature_names_baseline, feature_names_success
 # 
-#  
+X_train_baseline, X_test_baseline, y_train_baseline, y_test_baseline, X_success_increase, y_success_increase, rf_model_baseline, rf_model_success_increase, feature_names_baseline, feature_names_success = prepare_models()
+
+# Print the variables
+print(X_train_baseline)
+print(X_test_baseline)
+print(y_train_baseline)
+print(y_test_baseline)
+print(X_success_increase)
+print(y_success_increase)
+print(rf_model_baseline)
+print(rf_model_success_increase)
+print(feature_names_baseline)
+print(feature_names_success)
+
 def interpret_and_calculate(data):
+
+#                         'work_experience', #years of work experience
+#                         'canada_workex',#years of work experience
+#                         'dep_num', #number of dependents
+#                         'canada_born', #born in canada
+#                         'citizen_status', #citizen status
+#                         'level_of_schooling', #highest level achieved (1-14)
+#                         'fluent_english', #english level fluency, scale (1-1-)
+#                         'reading_english_scale', #reading scale (1-10)
+#                         'speaking_english_scale', #speaking level comfort (1-10)
+#                         'writing_english_scale', #writing scale (1-10)
+#                         'numeracy_scale', #numeracy scale (1-10)
+#                         'computer_scale', #computer use scale  (1-10)
+#                         'transportation_bool', #need transportation support (bool)
+#                         'caregiver_bool', #is a primary care giver bool
+#                         'housing', #housing situation 1-10
+#                         'income_source', #source of income 1-10
+#                         'felony_bool', #has a felony bool
+#                         'attending_school', #currently a student bool
+#                         'currently_employed', #currently employed bool
+#                         'substance_use', #disorder, bool
+#                         'time_unemployed', #number of years unemployed
+#                         'need_mental_health_support_bool'] #need support]
     # Separate demographics and interventions
     demographics = {
+        'work_ex':
         'dep_num': data[0],
         'canada_born': data[1],
         'citizen_status': data[2],
@@ -158,22 +205,6 @@ def interpret_and_calculate(data):
             'Emergency hostel': 10
         }
 
-# 'dep_num', 
-#                         'canada_born',
-#                         'citizen_status',
-#                         'level_of_schooling',
-#                         'fluent_english',
-#                         'numeracy_bool',
-#                         'computer_bool',
-#                         'transportation_bool',
-#                         'caregiver_bool',
-#                         'housing',
-#                         'income_source',
-#                         'felony_bool',
-#                         'attending_school',
-#                         'currently_employed',
-#                         'time_unemployed',
-#                         'canada_workex'
     }
 
     # Prepare models and feature names (same as before)
