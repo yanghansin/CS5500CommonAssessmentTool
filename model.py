@@ -4,12 +4,14 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 
+#additional checks for data
+
 def prepare_models():
     # Load dataset and define the features and labels
     classCode = pd.read_csv('training_data.csv')
     
     # Define categorical columns and interventions
-    categorical_cols = ['dep_num', 
+    categorical_cols = ['dep_num', #number of dependents
                         'canada_born',
                         'citizen_status',
                         'level_of_schooling',
@@ -84,6 +86,49 @@ def interpret_and_calculate(data):
     
     # Convert categorical variables to integers (same as before)
     categorical_cols_integers = {
+        'dep_num': {
+            '0': 0,
+            '1': 1,
+            '2': 2,
+            '3': 3,
+            '4': 4,
+            '5': 5,
+            '6': 6,
+            '7': 7,
+            '8': 8,
+            '10': 10
+        },
+        'canada_born': {
+            "No": 0,
+            "Yes": 1
+        },
+        'citizen_status': {
+            "No": 0,
+            "Yes": 1
+        },
+        'fluent_english': {
+            "No": 0,
+            "Yes": 1
+        },
+        'numeracy_bool': {
+            "No": 0,
+            "Yes": 1
+        },
+        'computer_bool': {
+            "No": 0,
+            "Yes": 1
+        },
+        'transportation_bool': {
+            "No": 0,
+            "Yes": 1
+        },
+        'caregiver_bool': {
+            "No": 0,
+            "Yes": 1
+        },
+        'income_source': {
+
+        },
         'level_of_schooling': {
             'Grade 0-8': 1,
             'Grade 9': 2,
@@ -111,10 +156,6 @@ def interpret_and_calculate(data):
             'Band-owned home': 8,
             'Homeless or transient': 9,
             'Emergency hostel': 10
-        },
-        'have_disability': {
-            "No": 0,
-            "Yes": 1
         }
 
 # 'dep_num', 
