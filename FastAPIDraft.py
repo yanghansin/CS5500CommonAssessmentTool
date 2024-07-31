@@ -7,6 +7,20 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 
+#request would include whatever the front end gives us
+#we would clean the data, does not include all of teh interventions
+#then we would prepare the data by duplicating it and each would have a different variation of interventions
+#because of the way batching works, we don't have to do the prediction on each row, we can treat it as one 
+#unit of data, then we're doing inference on 128 generated rown, then we look at the ones with highest 3 scores
+#return as a JSON (talk with wayne), return interventions. success rate would 
+#the user is going to have to run it
+# the user will get 2 results. first is prediction with no interventions and following x will be with best results
+# before friday, try to break things down 
+# when make fxn to clean data, don't overcomplicate it
+# when generating 127 rows that are all combinations, just say "here;s the list and return list of lists and do all that are permutations"
+#have fxn that returns all combos
+#API cleans it, generations of new rows, runs prediction and produces JSON and top results
+
 app = FastAPI()
 
 
@@ -141,7 +155,7 @@ def interpret_and_calculate(data):
         }
     }
 
-    # Convert demographics to integers
+    # Convert demographics  to integers
     demographics_integers = {col: categorical_cols_integers.get(col, {}).get(val, val) for col, val in demographics.items()}
     X_pred_baseline = pd.DataFrame([demographics_integers]).reindex(columns=feature_names_baseline, fill_value=0)
     X_pred_success = pd.DataFrame([demographics_integers]).reindex(columns=feature_names_success, fill_value=0)
