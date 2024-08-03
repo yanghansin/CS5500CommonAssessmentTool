@@ -4,8 +4,7 @@ from typing import List
 import pandas as pd
 import json
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
+import pickle
 
 #request would include whatever the front end gives us
 #we would clean the data, does not include all of teh interventions
@@ -20,11 +19,17 @@ from sklearn.ensemble import RandomForestRegressor
 # when generating 127 rows that are all combinations, just say "here;s the list and return list of lists and do all that are permutations"
 #have fxn that returns all combos
 #API cleans it, generations of new rows, runs prediction and produces JSON and top results
+#why pickle - takes memory as it is in python and takes a binary snapshot and saves it to a file  joblib
+# to do: run mean test on model, write fxn to check all inputs are filled in, sanitize data
+
+model = pickle.load(open("model.pkl","rb"))
+
+#website address that takes input from a form, processes it and returns result
+# first, we process inputs by cleaning them on and sanitizing them, 
+# augment input by creating 127 copies, with a variation on the interventions
 
 app = FastAPI()
 
-
-X_train_baseline, X_test_baseline, y_train_baseline, y_test_baseline, X_success_increase, y_success_increase, rf_model_baseline, rf_model_success_increase, feature_names_baseline, feature_names_success = prepare_models()
 
 # input data
 class PredictionInput(BaseModel):
