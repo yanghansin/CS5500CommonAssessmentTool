@@ -1,8 +1,10 @@
 import pandas as pd
 import json
 import numpy as np
+import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+
 
 #can something complex, like flask or fastAPI
 # we are doing a generalized version of the data, if the training data is individuals we would generalize
@@ -12,7 +14,7 @@ from sklearn.ensemble import RandomForestRegressor
 #training data that has been verified, what we are doing is prediction
 # we take predictions and put them aside to verify, and then in future social worker will compare outcome to prediction
 #we would get individualized data after 2 weeks we anonymize it and feed it back to model
-#
+# define the entry point, tweak it to make it easily changeable. make a proper python module
 
 def prepare_models():
     # Load dataset and define the features and labels
@@ -98,11 +100,22 @@ def prepare_models():
 #there's the preparation of the model and there's the saving of the file and that's a snapshot of our model after 
 #training, the easiest way is to use pickle.
 
-model = prepare_models()
-import pickle
-pickle.dump(model,open("model.pkl", "wb")) #saves model to the file name input, write binary
-#when we write API, 
-model = pickle.load(open("model.pkl", "rb")) #read binary
+
+
+def main():
+    print("Start model.")
+    model = prepare_models()
+
+    pickle.dump(model,open("model.pkl", "wb")) #saves model to the file name input, write binary
+    #when we write API, 
+    model = pickle.load(open("model.pkl", "rb")) #read binary
+
+if __name__ == "__main__":
+    main()
+
+#copy previous code and copy into main metho
+
+#python's version of a main method
 
 # def interpret_and_calculate(data):
 
