@@ -7,10 +7,10 @@ import numpy as np
 import pickle
 
 #request would include whatever the front end gives us
-#we would clean the data, does not include all of teh interventions
+#we would clean the data, does not include all of the interventions
 #then we would prepare the data by duplicating it and each would have a different variation of interventions
 #because of the way batching works, we don't have to do the prediction on each row, we can treat it as one 
-#unit of data, then we're doing inference on 128 generated rown, then we look at the ones with highest 3 scores
+#unit of data, then we're doing inference on 128 generated rows, then we look at the ones with highest 3 scores
 #return as a JSON (talk with wayne), return interventions. success rate would 
 #the user is going to have to run it
 # the user will get 2 results. first is prediction with no interventions and following x will be with best results
@@ -21,12 +21,20 @@ import pickle
 #API cleans it, generations of new rows, runs prediction and produces JSON and top results
 #why pickle - takes memory as it is in python and takes a binary snapshot and saves it to a file  joblib
 # to do: run mean test on model, write fxn to check all inputs are filled in, sanitize data
+# fast API is separate from the model, no business logic, middle
 
 model = pickle.load(open("model.pkl","rb"))
 
 #website address that takes input from a form, processes it and returns result
 # first, we process inputs by cleaning them on and sanitizing them, 
+# backend is in two parts, model is created once, that's where we would generalize or have specific data
 # augment input by creating 127 copies, with a variation on the interventions
+# we do a prediction using the model on the base data with no interventions-baseline score
+# we predict again with 127 variations, which will each get their own score
+# finally, we build a return that features the baseline & the top N combinations of interventions
+# optionally, we save predictions for later examination --- 
+
+#ensure data is in the same order.
 
 app = FastAPI()
 
@@ -57,8 +65,18 @@ class PredictionInput(BaseModel):
     need_mental_health_support_bool: str
     interventions: List[str]
 
-def interpret_and_calculate(data):
-    # Separate demographics and interventions
+def clean_input_data(data):
+    #translate input into wahtever we trained the model on, numerical data in a specific order
+    #if situation where interventions are set in stone, the command below is just cleaning up and organizing the input and making up baseline without any interventions
+    #we are making list of interventions
+    #any data has to be given by the form or we have to get rid of it
+    #align column with order in columns-match up names, assume 
+    # to do every column has to be in demographics
+    columns = ["age","gender","work_experience","canada_workex","dep_num",	"canada_born",	
+               "citizen_status",	"level_of_schooling",	"fluent_english",	"reading_english_scale",	
+               "speaking_english_scale",	"writing_english_scale",	"numeracy_scale",	"computer_scale",	
+               "transportation_bool",	"caregiver_bool",	"housing",	"income_source",	"felony_bool",	"attending_school",	
+               "currently_employed",	"substance_use",	"time_unemployed",	"need_mental_health_support_bool"]
     demographics = {
         'work_experience': data['work_experience'],
         'canada_workex': data['canada_workex'],
@@ -83,54 +101,31 @@ def interpret_and_calculate(data):
         'time_unemployed': data['time_unemployed'],
         'need_mental_health_support_bool': data['need_mental_health_support_bool']
     }
-    interventions = data['interventions']
+    output = []
+    for column in columns:
+        data = demographics[column]
+        if type(data) == str :
+            data = convert_text(data)
+        output.append(data)
+    return output
+    #make list of column in correct order
+    #to do, ask wayne to send numbers whenever possible
+    # interventions = data['interventions']
+    # to do - write a function to account for T/F Y/N input
+
+def convert_text(data:str):
+    #take string and do whatever we need to convert it into a number
     
     # Convert categorical variables to integers (same as before)
-    categorical_cols_integers = {
-        'dep_num': {
-            '0': 0,
-            '1': 1,
-            '2': 2,
-            '3': 3,
-            '4': 4,
-            '5': 5,
-            '6': 6,
-            '7': 7,
-            '8': 8,
-            '10': 10
+    #turn into a list of dictionar
+    categorical_cols_integers = [
+        {
+            "true": 1,
+            "false": 0,
+            "no": 0,
+            "yes": 1
         },
-        'canada_born': {
-            "No": 0,
-            "Yes": 1
-        },
-        'citizen_status': {
-            "No": 0,
-            "Yes": 1
-        },
-        'fluent_english': {
-            "No": 0,
-            "Yes": 1
-        },
-        'numeracy_bool': {
-            "No": 0,
-            "Yes": 1
-        },
-        'computer_bool': {
-            "No": 0,
-            "Yes": 1
-        },
-        'transportation_bool': {
-            "No": 0,
-            "Yes": 1
-        },
-        'caregiver_bool': {
-            "No": 0,
-            "Yes": 1
-        },
-        'income_source': {
-
-        },
-        'level_of_schooling': {
+        {
             'Grade 0-8': 1,
             'Grade 9': 2,
             'Grade 10': 3,
@@ -146,7 +141,7 @@ def interpret_and_calculate(data):
             'Bachelor’s degree': 13,
             'Post graduate': 14
         },
-        'housing_situation': {
+        {
             'Renting-private': 1,
             'Renting-subsidized': 2,
             'Boarding or lodging': 3,
@@ -158,12 +153,19 @@ def interpret_and_calculate(data):
             'Homeless or transient': 9,
             'Emergency hostel': 10
         }
-    }
-
+    ]
+    for category in categorical_cols_integers:
+        if data in category:
+            return category[data]
+    return int(data)
+    
     # Convert demographics  to integers
-    demographics_integers = {col: categorical_cols_integers.get(col, {}).get(val, val) for col, val in demographics.items()}
-    X_pred_baseline = pd.DataFrame([demographics_integers]).reindex(columns=feature_names_baseline, fill_value=0)
-    X_pred_success = pd.DataFrame([demographics_integers]).reindex(columns=feature_names_success, fill_value=0)
+
+
+
+#whatever wayne and I agree with is not necessarily this, might have to update
+def interpret_and_calculate(data):
+    # Separate demographics and interventions
 
     # Predict baseline return to work and success increase
     baseline_return_to_work = rf_model_baseline.predict(X_pred_baseline)[0]
@@ -182,6 +184,9 @@ def interpret_and_calculate(data):
     }
     
     return result
+
+#endpoints, a get and a post endpoint
+#data has to follow format of prediction input
 
 @app.post("/predict")
 async def predict(data: PredictionInput):

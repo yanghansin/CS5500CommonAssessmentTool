@@ -12,6 +12,7 @@ from sklearn.ensemble import RandomForestRegressor
 #training data that has been verified, what we are doing is prediction
 # we take predictions and put them aside to verify, and then in future social worker will compare outcome to prediction
 #we would get individualized data after 2 weeks we anonymize it and feed it back to model
+#
 
 def prepare_models():
     # Load dataset and define the features and labels
