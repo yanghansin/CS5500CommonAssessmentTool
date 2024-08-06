@@ -166,7 +166,8 @@ def convert_text(data:str):
 #whatever wayne and I agree with is not necessarily this, might have to update
 def interpret_and_calculate(data):
     # Separate demographics and interventions
-
+    raw_data = clean_input_data(data)
+    #expand into rows of data that include the interventions, then make predictions and format into output
     # Predict baseline return to work and success increase
     baseline_return_to_work = rf_model_baseline.predict(X_pred_baseline)[0]
     success_increase_results = {}
@@ -178,9 +179,9 @@ def interpret_and_calculate(data):
     total_increase = baseline_return_to_work + sum(success_increase_results.values())
 
     result = {
-        "baseline_return_to_work": baseline_return_to_work,
-        "success_increase_for_each_intervention": success_increase_results,
-        "total_increase": total_increase
+        "baseline_return_to_work": baseline_return_to_work, #need to know the type
+        "success_increase_for_each_intervention": success_increase_results, #what is this type, list, dict, etc.
+        "total_increase": total_increase #define this type, will be dict
     }
     
     return result
