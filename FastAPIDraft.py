@@ -5,6 +5,7 @@ import pandas as pd
 import json
 import numpy as np
 import pickle
+from itertools import combinations_with_replacement
 
 #request would include whatever the front end gives us
 #we would clean the data, does not include all of the interventions
@@ -22,6 +23,7 @@ import pickle
 #why pickle - takes memory as it is in python and takes a binary snapshot and saves it to a file  joblib
 # to do: run mean test on model, write fxn to check all inputs are filled in, sanitize data
 # fast API is separate from the model, no business logic, middle
+# get data from website and turn into numbers 8.10
 
 model = pickle.load(open("model.pkl","rb"))
 
@@ -114,8 +116,7 @@ def clean_input_data(data):
     # to do - write a function to account for T/F Y/N input
 
 def convert_text(data:str):
-    #take string and do whatever we need to convert it into a number
-    
+    #take string and do whatever we need to convert it into a number    
     # Convert categorical variables to integers (same as before)
     #turn into a list of dictionar
     categorical_cols_integers = [
@@ -161,30 +162,75 @@ def convert_text(data:str):
     
     # Convert demographics  to integers
 
+#first step is to repeat row of data 127 times, create 127 combinations, combine them
+def create_matrix(row):
+    data = [row.copy() for _ in range(127)] #127 because we have 7 interventions
+    perms = intervention_permutations(7)
+    data = np.array(data)
+    perms = np.array(perms)
+    matrix = np.concatenate((data,perms), axis = 1) #two 
+    return matrix
+#create matrix of permutations of 1 and 0 of num length
+def intervention_permutations(num):
+    perms = combinations_with_replacement([0,1],num)
+    return perms
 
+def get_baseline_row(row):
+    base_interventions = np.array([0]*7) # no interventions
+    row = np.array(row)
+    line = np.concatenate((row,base_interventions), axis = 1)
+    return line
 
+def process_results(results):
+    #placeholder, go through matrix and produce a list of intervention names for each row of the matrix, format, 
+    #process, and return
+    return results
 #whatever wayne and I agree with is not necessarily this, might have to update
 def interpret_and_calculate(data):
     # Separate demographics and interventions
     raw_data = clean_input_data(data)
     #expand into rows of data that include the interventions, then make predictions and format into output
-    # Predict baseline return to work and success increase
-    baseline_return_to_work = rf_model_baseline.predict(X_pred_baseline)[0]
-    success_increase_results = {}
-    for intervention in interventions:
-        X_pred_success[intervention] = 1
-        success_increase_results[intervention] = rf_model_success_increase.predict(X_pred_success)[0]
-        X_pred_success[intervention] = 0
-    
-    total_increase = baseline_return_to_work + sum(success_increase_results.values())
+    baseline_row = get_baseline_row(raw_data)
+    intervention_rows = create_matrix(raw_data)
+    baseline_prediction = model.predict(baseline_row)
+    intervention_predictions = model.predict(intervention_rows)
 
-    result = {
-        "baseline_return_to_work": baseline_return_to_work, #need to know the type
-        "success_increase_for_each_intervention": success_increase_results, #what is this type, list, dict, etc.
-        "total_increase": total_increase #define this type, will be dict
-    }
+    # need to tie interventions to percentages
+    # concat predictions to intervention matrix
+    result_matrix = np.concatenate((intervention_rows,intervention_predictions), axis = 1)
     
-    return result
+    # sort this matrix based on prediction
+    result_matrix = np.sort(result_matrix, order = -1, axis = 0) #note, sorted by ascending
+    # slice matrix to only top N results
+    result_matrix = result_matrix[-3:,-8:] #-8 for interventions and prediction, want top 3
+    # post process results if needed ie make list of names for each row
+    results = process_results(result_matrix)
+    # build output dict
+    output = {
+        "baseline": baseline_prediction,
+        "interventions": results,
+    }
+    return output
+
+
+
+    # Predict baseline return to work and success increase
+    # baseline_return_to_work = rf_model_baseline.predict(X_pred_baseline)[0]
+    # success_increase_results = {}
+    # for intervention in interventions:
+    #     X_pred_success[intervention] = 1
+    #     success_increase_results[intervention] = rf_model_success_increase.predict(X_pred_success)[0]
+    #     X_pred_success[intervention] = 0
+    
+    # total_increase = baseline_return_to_work + sum(success_increase_results.values())
+
+    # result = {
+    #     "baseline_return_to_work": baseline_return_to_work, #need to know the type
+    #     "success_increase_for_each_intervention": success_increase_results, #what is this type, list, dict, etc.
+    #     "total_increase": total_increase #define this type, will be dict
+    # }
+    
+    # return result
 
 #endpoints, a get and a post endpoint
 #data has to follow format of prediction input
@@ -197,3 +243,8 @@ async def predict(data: PredictionInput):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# what is he expecting to get back re: interventions, a list of interventions by name and expected success?
+# to do: run the code
+
+#run it as a server, how to connect the two
