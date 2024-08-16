@@ -40,8 +40,9 @@ model = pickle.load(open("model.pkl","rb"))
 
 app = FastAPI()
 
-
+#entry point
 # input data
+#dictionary of key/value pairs
 class PredictionInput(BaseModel):
     work_experience: int
     canada_workex: int
@@ -160,7 +161,7 @@ def convert_text(data:str):
             return category[data]
     return int(data)
     
-    # Convert demographics  to integers
+    # Convert demographics to integers
 
 #first step is to repeat row of data 127 times, create 127 combinations, combine them
 def create_matrix(row):
@@ -184,6 +185,7 @@ def get_baseline_row(row):
 def process_results(results):
     #placeholder, go through matrix and produce a list of intervention names for each row of the matrix, format, 
     #process, and return
+    #returns list or dict
     return results
 #whatever wayne and I agree with is not necessarily this, might have to update
 def interpret_and_calculate(data):
@@ -202,7 +204,7 @@ def interpret_and_calculate(data):
     # sort this matrix based on prediction
     result_matrix = np.sort(result_matrix, order = -1, axis = 0) #note, sorted by ascending
     # slice matrix to only top N results
-    result_matrix = result_matrix[-3:,-8:] #-8 for interventions and prediction, want top 3
+    result_matrix = result_matrix[-3:,-8:] #-8 for interventions and prediction, want top 3, 3 combinations of intervention
     # post process results if needed ie make list of names for each row
     results = process_results(result_matrix)
     # build output dict
@@ -248,3 +250,4 @@ if __name__ == "__main__":
 # to do: run the code
 
 #run it as a server, how to connect the two
+# will get a json file
