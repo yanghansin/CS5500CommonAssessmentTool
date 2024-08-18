@@ -38,7 +38,7 @@ model = pickle.load(open("model.pkl","rb"))
 
 #ensure data is in the same order.
 
-app = FastAPI()
+#### app = FastAPI()
 
 #entry point
 # input data
@@ -237,14 +237,7 @@ def interpret_and_calculate(data):
 #endpoints, a get and a post endpoint
 #data has to follow format of prediction input
 
-@app.post("/predict")
-async def predict(data: PredictionInput):
-    result = interpret_and_calculate(data.dict())
-    return result
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 # what is he expecting to get back re: interventions, a list of interventions by name and expected success?
 # to do: run the code
