@@ -1,11 +1,19 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
 from typing import List
 import pandas as pd
 import json
 import numpy as np
 import pickle
 from itertools import combinations_with_replacement
+
+column_intervention = [
+    'Life Stabilization',
+    'General Employment Assistance Services',
+    'Retention Services',
+    'Specialized Services',
+    'Employment-Related Financial Supports for Job Seekers and Employers', 
+    'Employer Financial Supports',
+    'Enhanced Referrals for Skills Development'
+]
 
 #request would include whatever the front end gives us
 #we would clean the data, does not include all of the interventions
@@ -40,33 +48,6 @@ model = pickle.load(open("model.pkl","rb"))
 
 #### app = FastAPI()
 
-#entry point
-# input data
-#dictionary of key/value pairs
-class PredictionInput(BaseModel):
-    work_experience: int
-    canada_workex: int
-    dep_num: int
-    canada_born: str
-    citizen_status: str
-    level_of_schooling: str
-    fluent_english: str
-    reading_english_scale: int
-    speaking_english_scale: int
-    writing_english_scale: int
-    numeracy_scale: int
-    computer_scale: int
-    transportation_bool: str
-    caregiver_bool: str
-    housing: str
-    income_source: int
-    felony_bool: str
-    attending_school: str
-    currently_employed: str
-    substance_use: str
-    time_unemployed: int
-    need_mental_health_support_bool: str
-    interventions: List[str]
 
 def clean_input_data(data):
     #translate input into wahtever we trained the model on, numerical data in a specific order
@@ -182,11 +163,40 @@ def get_baseline_row(row):
     line = np.concatenate((row,base_interventions), axis = 1)
     return line
 
-def process_results(results):
+def intervention_row_to_names(row):
+    names = []
+    for i, value in enumerate(row):
+        if value == 1: 
+            names.append(column_interventions[i])
+    return names
+
+def process_results(baseline, results):
+    ##Example:
+    """
+    {
+        baseline_probability: 80 #baseline percentage point with no interventions
+        results: [
+            (85, [A,B,C]) #new percentange with intervention combinations and list of intervention names
+            (89, [B,C])
+            (91, [D,E])
+        ]
+    }
+    """
+    result_list= []
+    for row in results:
+        percent = row[-1]
+        names = intervention_row_to_names(row)
+        result_list.append((percent,names))
+
+
+    output = {
+        "baseline": baseline,
+        "interventions": result_list,
+    }
     #placeholder, go through matrix and produce a list of intervention names for each row of the matrix, format, 
     #process, and return
     #returns list or dict
-    return results
+    return output
 #whatever wayne and I agree with is not necessarily this, might have to update
 def interpret_and_calculate(data):
     # Separate demographics and interventions
@@ -206,15 +216,9 @@ def interpret_and_calculate(data):
     # slice matrix to only top N results
     result_matrix = result_matrix[-3:,-8:] #-8 for interventions and prediction, want top 3, 3 combinations of intervention
     # post process results if needed ie make list of names for each row
-    results = process_results(result_matrix)
+    results = process_results(baseline_prediction,result_matrix)
     # build output dict
-    output = {
-        "baseline": baseline_prediction,
-        "interventions": results,
-    }
-    return output
-
-
+    return results
 
     # Predict baseline return to work and success increase
     # baseline_return_to_work = rf_model_baseline.predict(X_pred_baseline)[0]
