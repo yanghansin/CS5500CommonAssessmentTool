@@ -4,6 +4,7 @@ import json
 import numpy as np
 import pickle
 from itertools import combinations_with_replacement
+from itertools import product
 
 column_intervention = [
     'Life Stabilization',
@@ -62,6 +63,8 @@ def clean_input_data(data):
                "transportation_bool",	"caregiver_bool",	"housing",	"income_source",	"felony_bool",	"attending_school",	
                "currently_employed",	"substance_use",	"time_unemployed",	"need_mental_health_support_bool"]
     demographics = {
+        # 'age': data['age'],
+        # 'gender': data['gender'],
         'work_experience': data['work_experience'],
         'canada_workex': data['canada_workex'],
         'dep_num': data['dep_num'],
@@ -87,18 +90,20 @@ def clean_input_data(data):
     }
     output = []
     for column in columns:
-        data = demographics[column]
+        # data = demographics[column] #grabbing something from a dictionary, sometimes dicts might not have the key we expect 8.21
+        data = demographics.get(column, None) #default is None, and if you want to pass a value, can return any value
         if type(data) == str :
             data = convert_text(data)
         output.append(data)
     return output
+    print(output)
     #make list of column in correct order
     #to do, ask wayne to send numbers whenever possible
     # interventions = data['interventions']
     # to do - write a function to account for T/F Y/N input
 
 def convert_text(data:str):
-    #take string and do whatever we need to convert it into a number    
+    #take string and do whatever we need to convert it into a number
     # Convert categorical variables to integers (same as before)
     #turn into a list of dictionar
     categorical_cols_integers = [
@@ -106,7 +111,9 @@ def convert_text(data:str):
             "true": 1,
             "false": 0,
             "no": 0,
-            "yes": 1
+            "yes": 1,
+            "No": 0,
+            "Yes": 1
         },
         {
             'Grade 0-8': 1,
@@ -146,28 +153,45 @@ def convert_text(data:str):
 
 #first step is to repeat row of data 127 times, create 127 combinations, combine them
 def create_matrix(row):
-    data = [row.copy() for _ in range(127)] #127 because we have 7 interventions
+    data = [row.copy() for _ in range(128)] #127 because we have 7 interventions
     perms = intervention_permutations(7)
+    # print("this is perms",perms)
     data = np.array(data)
     perms = np.array(perms)
     matrix = np.concatenate((data,perms), axis = 1) #two 
-    return matrix
+    return np.array(matrix)
 #create matrix of permutations of 1 and 0 of num length
 def intervention_permutations(num):
-    perms = combinations_with_replacement([0,1],num)
-    return perms
+    perms = list(product([0,1],repeat=num))
+    return np.array(perms)
 
 def get_baseline_row(row):
+    # print("GET BASELINE ROW FXN:: ROW",row)
+    print(type(row))
     base_interventions = np.array([0]*7) # no interventions
-    row = np.array(row)
-    line = np.concatenate((row,base_interventions), axis = 1)
+    # print("GET BASELINE ROW::BASE INTERVENTIONS",base_interventions)
+    print(type(base_interventions))
+    #8.23 TO DO 
+
+    row = np.array(row) #TO DO FIX how line is created 8.21
+    print(row)
+    print(type(row))
+    line = np.concatenate((row,base_interventions))
+    #to do, read way np concatenate works
     return line
+    #set up print statements, 
+
+    #test function on its own 8.23, 
+
+#[ , 0, 0, 0, 0, 0, 0, 0] <-list of numbers
+
+#give a list of numbers, 
 
 def intervention_row_to_names(row):
     names = []
     for i, value in enumerate(row):
         if value == 1: 
-            names.append(column_interventions[i])
+            names.append(column_intervention[i])
     return names
 
 def process_results(baseline, results):
@@ -184,13 +208,13 @@ def process_results(baseline, results):
     """
     result_list= []
     for row in results:
-        percent = row[-1]
+        percent = row[-1] 
         names = intervention_row_to_names(row)
         result_list.append((percent,names))
 
 
     output = {
-        "baseline": baseline,
+        "baseline": baseline[-1], #if it's an array, want the value inside of the array
         "interventions": result_list,
     }
     #placeholder, go through matrix and produce a list of intervention names for each row of the matrix, format, 
@@ -199,26 +223,69 @@ def process_results(baseline, results):
     return output
 #whatever wayne and I agree with is not necessarily this, might have to update
 def interpret_and_calculate(data):
+    # 8.23 TO DO create a fxn, test
     # Separate demographics and interventions
     raw_data = clean_input_data(data)
     #expand into rows of data that include the interventions, then make predictions and format into output
     baseline_row = get_baseline_row(raw_data)
+
+    baseline_row = baseline_row.reshape(1, -1)
+    print("BASELINE ROW IS",baseline_row)
     intervention_rows = create_matrix(raw_data)
     baseline_prediction = model.predict(baseline_row)
     intervention_predictions = model.predict(intervention_rows)
 
     # need to tie interventions to percentages
     # concat predictions to intervention matrix
-    result_matrix = np.concatenate((intervention_rows,intervention_predictions), axis = 1)
+    intervention_predictions = intervention_predictions.reshape(-1, 1) #want shape to be a vertical column, not a row
+    print("SHAPE OF INTERVENTION ROWS::",intervention_rows.shape)
+    print("SHAPE OF INTERVENTION PREDICTIONS::",intervention_predictions.shape)
+    result_matrix = np.concatenate((intervention_rows,intervention_predictions), axis = 1) ##CHANGED AXIS
     
     # sort this matrix based on prediction
-    result_matrix = np.sort(result_matrix, order = -1, axis = 0) #note, sorted by ascending
+    print("RESULT SAMPLE::", result_matrix[:5])
+    # result_matrix = np.sort(result_matrix, order = -1, axis = 0) #note, sorted by ascending
+    result_order = result_matrix[:,-1].argsort() #take all rows and only last column, gives back list of indexes sorted
+    result_matrix = result_matrix[result_order] #indexing the matrix by the order
+
     # slice matrix to only top N results
     result_matrix = result_matrix[-3:,-8:] #-8 for interventions and prediction, want top 3, 3 combinations of intervention
     # post process results if needed ie make list of names for each row
     results = process_results(baseline_prediction,result_matrix)
     # build output dict
     return results
+
+if __name__ == "__main__":
+    print("running")
+    data = {
+        "age": "23",
+        "gender": "1",
+        "work_experience": "1",
+        "canada_workex": "1",
+        "dep_num": "0",
+        "canada_born": "1",
+        "citizen_status": "2",
+        "level_of_schooling": "2",
+        "fluent_english": "3",
+        "reading_english_scale": "2",
+        "speaking_english_scale": "2",
+        "writing_english_scale": "3",
+        "numeracy_scale": "2",
+        "computer_scale": "3",
+        "transportation_bool": "2",
+        "caregiver_bool": "1",
+        "housing": "1",
+        "income_source": "1",
+        "felony_bool": "1",
+        "attending_school": "0",
+        "currently_employed": "1",
+        "substance_use": "1",
+        "time_unemployed": "1",
+        "need_mental_health_support_bool": "1"
+    }
+    # print(data)
+    results = interpret_and_calculate(data)
+    print(results)
 
     # Predict baseline return to work and success increase
     # baseline_return_to_work = rf_model_baseline.predict(X_pred_baseline)[0]
