@@ -60,10 +60,12 @@ def prepare_models():
         'employer_financial_supports',
         'enhanced_referrals'
     ]
-    
+    categorical_cols.extend(interventions)
     # Prepare training data
     X_categorical_baseline = backendCode[categorical_cols]
     y_baseline = backendCode['success_rate']
+    X_categorical_baseline = np.array(X_categorical_baseline)
+    y_baseline = np.array(y_baseline)
     X_train_baseline, X_test_baseline, y_train_baseline, y_test_baseline = train_test_split(
         X_categorical_baseline, y_baseline, test_size=0.2, random_state=42)
 
@@ -77,7 +79,7 @@ def prepare_models():
     #todo = calculate error rate by comparing baseline to test y values and report on the accuracy. MSE or otherwise
 
     # Define feature names used during training
-    feature_names_baseline = X_categorical_baseline.columns.tolist()
+    # feature_names_baseline = X_categorical_baseline.columns.tolist()
     
     return rf_model_baseline
 #     return X_train_baseline, X_test_baseline, y_train_baseline, y_test_baseline, X_success_increase, y_success_increase, rf_model_baseline, rf_model_success_increase, feature_names_baseline, feature_names_success
