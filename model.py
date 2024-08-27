@@ -9,9 +9,7 @@ from sklearn.ensemble import RandomForestRegressor
 def prepare_models():
     # Load dataset and define the features and labels
     backendCode = pd.read_csv('data_commontool.csv')
-    
     # Define categorical columns and interventions
-
     categorical_cols = ['age',
                         'gender', #bool
                         'work_experience', #years of work experience
@@ -54,7 +52,6 @@ def prepare_models():
     X_train_baseline, X_test_baseline, y_train_baseline, y_test_baseline = train_test_split(
         X_categorical_baseline, y_baseline, test_size=0.2, random_state=42)
 
-    
     rf_model_baseline = RandomForestRegressor(n_estimators=100, random_state=42)
     rf_model_baseline.fit(X_train_baseline, y_train_baseline)
 

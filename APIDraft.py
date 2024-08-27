@@ -26,7 +26,7 @@ class PredictionInput(BaseModel):
     transportation_bool: str
     caregiver_bool: str
     housing: str
-    income_source: int #is a string
+    income_source: str #is a string
     felony_bool: str
     attending_school: str
     currently_employed: str
@@ -36,7 +36,8 @@ class PredictionInput(BaseModel):
 
 @app.post("/predict")
 async def predict(data: PredictionInput):
-    result = interpret_and_calculate(data.dict()) #testing through API with server, write a fxn that calls iac, give it a default dict
+    print("Running from UI")
+    result = interpret_and_calculate(data.model_dump()) #testing through API with server, write a fxn that calls iac, give it a default dict
     return result
 @app.get("/test")
 async def testform():
