@@ -1,7 +1,0 @@
-notes
-
-node.js is a webserver that works on the backend side, it serves websites, it's all written in javascript
-, the front end is the website (page) itself, the place the user interacts with things
-node is goign to deliver html and js that constitutes the backend
-now everything is happening on the user's computer
-what node
