@@ -16,7 +16,7 @@ column_intervention = [
     'Enhanced Referrals for Skills Development'
 ]
 
-#loads the model into locic
+#loads the model into logic
 
 model = pickle.load(open("model.pkl","rb"))
 
@@ -101,6 +101,18 @@ def convert_text(data:str):
             'Band-owned home': 8,
             'Homeless or transient': 9,
             'Emergency hostel': 10
+        },
+        {
+            'No Source of Income': 1,
+            'Employment Insurance (EI)': 2,
+            'Workplace Safety and Insurance Board (WSIB)': 3,
+            'Ontario Works (OW) applied or receiving': 4,
+            'Ontario Disability Support Program (ODSP) applied or receiving': 5,
+            'Dependent of someone receiving OW or ODSP': 6,
+            'Crown Ward': 7,
+            'Employment': 8,
+            'Self-Employment': 9,
+            'Other (specify)': 10
         }
     ]
     for category in categorical_cols_integers:
@@ -131,7 +143,6 @@ def get_baseline_row(row):
     line = np.concatenate((row,base_interventions))
     return line
 
-
 def intervention_row_to_names(row):
     names = []
     for i, value in enumerate(row):
@@ -156,7 +167,6 @@ def process_results(baseline, results):
         percent = row[-1] 
         names = intervention_row_to_names(row)
         result_list.append((percent,names))
-
 
     output = {
         "baseline": baseline[-1], #if it's an array, want the value inside of the array
@@ -207,7 +217,7 @@ if __name__ == "__main__":
         "transportation_bool": "2",
         "caregiver_bool": "1",
         "housing": "1",
-        "income_source": "1",
+        "income_source": "5",
         "felony_bool": "1",
         "attending_school": "0",
         "currently_employed": "1",
