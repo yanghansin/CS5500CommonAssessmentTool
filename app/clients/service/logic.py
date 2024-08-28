@@ -18,7 +18,11 @@ column_intervention = [
 
 #loads the model into logic
 
-model = pickle.load(open("model.pkl", "rb"))
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+filename = os.path.join(current_dir, 'model.pkl')
+model = pickle.load(open(filename, "rb"))
 
 
 def clean_input_data(data):
@@ -57,13 +61,15 @@ def clean_input_data(data):
     output = []
     for column in columns:
         data = demographics.get(column, None) #default is None, and if you want to pass a value, can return any value
-        if type(data) == str :
-            data = convert_text(data)
+        # if type(data) == str :
+        if isinstance(data, str):
+            data = convert_text(column, data)
         output.append(data)
-    return output
     print(output)
+    return output
 
-def convert_text(data:str):
+
+def convert_text(column, data:str):
     # Convert text answers from front end into digits
     categorical_cols_integers = [
         {
@@ -116,9 +122,10 @@ def convert_text(data:str):
         }
     ]
     for category in categorical_cols_integers:
-        if data in category:
+        if column in category:
             return category[data]
-    return int(data)
+    return data
+    # return int(data)
     
 
 #creates 128 possible combinations in order to run every possibility through model
