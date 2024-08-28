@@ -18,7 +18,7 @@ column_intervention = [
 
 #loads the model into logic
 
-model = pickle.load(open("model.pkl","rb"))
+model = pickle.load(open("model.pkl", "rb"))
 
 
 def clean_input_data(data):
