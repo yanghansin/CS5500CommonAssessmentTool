@@ -65,7 +65,7 @@ def main():
     print("Start model.")
     model = prepare_models()
 
-    pickle.dump(model,open("model.pkl", "wb")) #saves model to the file name input, write binary
+    pickle.dump(model, open("model.pkl", "wb")) #saves model to the file name input, write binary
     model = pickle.load(open("model.pkl", "rb")) #read binary
 
 if __name__ == "__main__":
