@@ -61,11 +61,9 @@ def clean_input_data(data):
     output = []
     for column in columns:
         data = demographics.get(column, None) #default is None, and if you want to pass a value, can return any value
-        # if type(data) == str :
         if isinstance(data, str):
             data = convert_text(column, data)
         output.append(data)
-    print(output)
     return output
 
 
@@ -73,6 +71,7 @@ def convert_text(column, data:str):
     # Convert text answers from front end into digits
     categorical_cols_integers = [
         {
+            "": 0,
             "true": 1,
             "false": 0,
             "no": 0,
@@ -122,11 +121,15 @@ def convert_text(column, data:str):
         }
     ]
     for category in categorical_cols_integers:
-        if column in category:
+        print(f"data: {data}")
+        print(f"column: {column}")
+        if data in category:
             return category[data]
+
+    if isinstance(data, str) and data.isnumeric():
+        return int(data)
+
     return data
-    # return int(data)
-    
 
 #creates 128 possible combinations in order to run every possibility through model
 def create_matrix(row):
@@ -202,6 +205,7 @@ def interpret_and_calculate(data):
     # post process results if needed ie make list of names for each row
     results = process_results(baseline_prediction,result_matrix)
     # build output dict
+    print(f"RESULTS: {results}")
     return results
 
 if __name__ == "__main__":
