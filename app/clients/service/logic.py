@@ -69,6 +69,7 @@ def clean_input_data(data):
 
 def convert_text(column, data:str):
     # Convert text answers from front end into digits
+    # TODO: ensure that categorical columns match the valid answers in FormNew.jsx (L131)
     categorical_cols_integers = [
         {
             "": 0,
@@ -84,7 +85,7 @@ def convert_text(column, data:str):
             'Grade 9': 2,
             'Grade 10': 3,
             'Grade 11': 4,
-            'Grade 12 or equivalent (GED)': 5,
+            'Grade 12 or equivalent': 5,
             'OAC or Grade 13': 6,
             'Some college': 7,
             'Some university': 8,
@@ -109,10 +110,10 @@ def convert_text(column, data:str):
         },
         {
             'No Source of Income': 1,
-            'Employment Insurance (EI)': 2,
-            'Workplace Safety and Insurance Board (WSIB)': 3,
-            'Ontario Works (OW) applied or receiving': 4,
-            'Ontario Disability Support Program (ODSP) applied or receiving': 5,
+            'Employment Insurance': 2,
+            'Workplace Safety and Insurance Board': 3,
+            'Ontario Works applied or receiving': 4,
+            'Ontario Disability Support Program applied or receiving': 5,
             'Dependent of someone receiving OW or ODSP': 6,
             'Crown Ward': 7,
             'Employment': 8,
