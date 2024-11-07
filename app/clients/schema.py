@@ -1,4 +1,38 @@
 from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class PredictionInput(BaseModel):
+    age: int
+    gender: str
+    # Include all other fields as per your earlier schema
+
+class PredictionOutput(BaseModel):
+    prediction: float
+    confidence: float
+    # Include other relevant fields
+
+    class Config:
+        orm_mode = True
+
+class ClientBase(BaseModel):
+    age: int
+    gender: str
+    # Common fields between create and update
+
+class ClientCreate(ClientBase):
+    pass  # Additional fields for creation if any
+
+class ClientUpdate(BaseModel):
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    # Fields that can be updated, all optional
+
+class ClientOut(ClientBase):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 class PredictionInput(BaseModel):
     age: int

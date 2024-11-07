@@ -5,6 +5,16 @@ import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 
+from sqlalchemy import Column, Integer, String, Boolean
+from app.database import Base
+
+class Client(Base):
+    __tablename__ = "clients"
+
+    id = Column(Integer, primary_key=True, index=True)
+    age = Column(Integer)
+    gender = Column(String)
+    # Add other fields matching your database schema
 
 def prepare_models():
     # Load dataset and define the features and labels
