@@ -2,7 +2,7 @@ import mysql.connector
 import os
 from mysql.connector import pooling
 from dotenv import load_dotenv
-
+load_dotenv()
 class ConnectionManager:
     def __init__(self):
         self.db_config = {
