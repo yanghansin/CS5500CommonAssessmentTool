@@ -35,5 +35,5 @@ jobs:
       - run: python3 -m venv env
       - name: Run the test script
         run: |
-          python app/tests/test.py
+          python tests/test.py
 
