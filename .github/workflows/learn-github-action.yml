@@ -23,6 +23,7 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4
     - run: brew install gdal
+      timeout-minutes: 20
     - run: brew install mysql
     - run: pip install fiona
     - run: pip install mysqlclient
