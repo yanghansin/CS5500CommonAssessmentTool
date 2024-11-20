@@ -20,4 +20,6 @@ jobs:
     - run: echo "🎉 Hello World!"
     - run: echo "🐧"
     - run: echo "🔎"
-
+    - run: pip install -r requirements.txt
+    - run: python3 -m venv env
+    - run: uvicorn app.main:app --reload
