@@ -26,6 +26,8 @@ jobs:
         with:
           python-version: 3.11
       - run: python -m pip install --upgrade pip
+      - run: brew install mysql
+      - run: brew install pkg-config
       - run: export MYSQLCLIENT_CFLAGS="-I/usr/include/mysql"
       - run: export MYSQLCLIENT_LDFLAGS="-L/usr/lib/mysql"
       - run: pip install -r requirements.txt
