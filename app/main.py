@@ -33,29 +33,6 @@ async def test_connection():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/clients/{id}")
-async def get_by_id(id: int):
-    try:
-        connection_manager = ConnectionManager()
-        connection = connection_manager.get_connection()
-
-        # Execute the query to fetch the client by id
-        cursor = connection.cursor(dictionary=True)
-        query = "SELECT * FROM clients WHERE client_id = %s"
-        cursor.execute(query, (id,))
-        client = cursor.fetchone()
-
-        # Close the cursor and connection
-        cursor.close()
-        connection_manager.close_connection(connection)
-
-        if not client:
-            raise HTTPException(status_code=404, detail=f"Client with id {id} not found.")
-
-        return client
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 

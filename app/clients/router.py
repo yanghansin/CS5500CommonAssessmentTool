@@ -111,9 +111,6 @@ async def update_client(id: int, data: DynamicClient):
             raise HTTPException(status_code=400,
                                 detail="No fields provided for update")
         update_values.append(id)
-        for field in update_fields:
-            print(field)
-
         query = f"""
                UPDATE clients
                SET {', '.join(update_fields)}
