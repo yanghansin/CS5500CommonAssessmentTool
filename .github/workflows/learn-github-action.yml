@@ -1,13 +1,15 @@
-name: learn-.github-actions
-run-name: ${{ .github.actor }} is learning GitHub Actions
+name: cs5500PIPLINE
+
+defaults:
+  run:
+    shell: bash
+
+
 on: [push]
 jobs:
-  check-bats-version:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: npm install -g bats
-      - run: bats -v
+    - run: echo "🎉 Hello World!"
+    - run: echo "🐧"
+    - run: echo "🔎"
+
