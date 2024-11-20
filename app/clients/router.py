@@ -11,6 +11,7 @@ from app.clients.schema import PredictionInput
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
+# HEIHEIHEI
 @router.post("/predictions")
 async def predict(data: PredictionInput):
     print("HERE")
