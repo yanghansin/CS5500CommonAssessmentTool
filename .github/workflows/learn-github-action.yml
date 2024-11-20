@@ -17,17 +17,15 @@ jobs:
   run-tests:
     runs-on: macos-latest
     steps:
-    - run: echo "🎉 Hello World!"
-    - run: echo "🐧"
-    - run: echo "🔎"
-    - name: Check out repository
-      uses: actions/checkout@v4
-    - run: brew install gdal
-      timeout-minutes: 20
-    - run: brew install mysql
-    - run: pip install fiona
-    - run: pip install mysqlclient
-    - run: python -m pip install --upgrade pip
-    - run: pip install -r requirements.txt
-    - run: python3 -m venv env
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements.txt
+      - run: python3 -m venv env
 
