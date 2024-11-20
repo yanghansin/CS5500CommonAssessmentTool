@@ -7,7 +7,7 @@ defaults:
 
 on: [push]
 jobs:
-  run tests:
+  run-tests:
     runs-on: macos-latest
     steps:
     - run: echo "🎉 Hello World!"
