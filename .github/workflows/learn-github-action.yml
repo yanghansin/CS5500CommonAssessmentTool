@@ -5,7 +5,14 @@ defaults:
     shell: bash
 
 
-on: [push]
+on:
+  push:
+    branches:
+      - mian
+
+  pull_request:
+    branches:
+      - main
 jobs:
   run-tests:
     runs-on: macos-latest
