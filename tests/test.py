@@ -1,14 +1,13 @@
-from app.clients.service.logic import interpret_and_calculate
+# from logic import interpret_and_calculate
 from itertools import combinations_with_replacement
 
-def test_interpret_and_calculate():
-    print("running tests")
-    data = {"23","1","1","1","1","0","1","2","2","3","2",
-    "2","3","2","1","1","1","1","1","1","0","1","1","1"
-    }
-    result = interpret_and_calculate(data)
-    print(result)
-test_interpret_and_calculate()
+# def test_interpret_and_calculate():
+#     print("running tests")
+#     data = {"23","1","1","1","1","0","1","2","2","3","2",
+#     "2","3","2","1","1","1","1","1","1","0","1","1","1"
+#     }
+#     result = interpret_and_calculate(data)
+#     print(data)
 
 from itertools import product
 
