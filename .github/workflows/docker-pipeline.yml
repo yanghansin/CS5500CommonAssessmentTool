@@ -28,7 +28,7 @@ jobs:
       # Step 3: Run the Docker container
       - name: Run Docker Container
         run: |
-          docker run -d --name cs5500-container --env-file .env -p 8000:8000 cs5500-app
+          docker run -d --name cs5500-container -p 8000:8000 cs5500-app
 
       # Step 4: Wait for the container to start
       - name: Wait for Container Startup
