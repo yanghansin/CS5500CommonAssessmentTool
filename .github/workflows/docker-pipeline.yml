@@ -38,7 +38,7 @@ jobs:
       # Step 5: Test API Endpoints
       - name: Test Endpoints with cURL
         run: |
-          curl http://127.0.0.1:8000/clients/
+          curl http://127.0.0.1:8000/clients
 
       # Step 6: Cleanup the container
       - name: Cleanup Docker Container
