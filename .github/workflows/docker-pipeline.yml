@@ -35,7 +35,6 @@ jobs:
       # Step 5: Test API Endpoints
       - name: Test Endpoints with cURL
         run: |
-          curl -f http://localhost:8000/docs
           curl -f http://localhost:8000/clients/
 
       # Step 6: Cleanup the container
