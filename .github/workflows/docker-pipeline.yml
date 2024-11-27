@@ -1,0 +1,45 @@
+name: Docker Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Build the Docker image
+      - name: Build Docker Image
+        run: |
+          docker build -t cs5500-app .
+
+      # Step 3: Run the Docker container
+      - name: Run Docker Container
+        run: |
+          docker run -d --name cs5500-container -p 8000:8000 cs5500-app
+
+      # Step 4: Wait for the container to start
+      - name: Wait for Container Startup
+        run: |
+          sleep 10
+
+      # Step 5: Test API Endpoints
+      - name: Test Endpoints with cURL
+        run: |
+          curl -f http://localhost:8000/docs
+          curl -f http://localhost:8000/clients/
+
+      # Step 6: Cleanup the container
+      - name: Cleanup Docker Container
+        run: |
+          docker stop cs5500-container
+          docker rm cs5500-container
